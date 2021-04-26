@@ -91,10 +91,10 @@ leaderboard['Rank'] = leaderboard['User'].rank(method='min', ascending=False)
 leaderboard['Total Entires'] = clean_data['User'].value_counts()
 #leaderboard = leaderboard.sort_values(by=['User'], ascending=False)
 
-st.subheader("Leaderboard :muscle:")
+st.subheader("Leaderboard :trophy:")
 st.write(leaderboard[['Rank', 'Total Entires']])
 
-st.subheader("The most popular day for walking is...")
+st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
 
 st.subheader("Do y'all wanna see the data?")
@@ -109,7 +109,7 @@ if st.checkbox('yeah, show me the data!'):
 #    st.write(race)
 
 if st.checkbox("I didn't ask you to hold back, show me the dirty doubles too!"):
-    st.subheader('If you must')
+    st.subheader('If you must :poop:')
     st.write(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
 
 st.subheader('Need to see the raw data too?')
