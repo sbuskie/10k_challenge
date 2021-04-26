@@ -22,7 +22,7 @@ st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image(image, caption='Get out in those hills and get your steps')
 
 
-#caching the data if def load_data is reading and manipulating large data source
+#caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
 #@st.cache
 def load_data(nrows):
     data = pd.read_csv('Response_data_for_visualisation.csv')#, nrows=nrows)
