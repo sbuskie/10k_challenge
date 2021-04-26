@@ -22,7 +22,7 @@ st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image(image, caption='Get out in those hills and get your steps')
 
 
-#caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
+#TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
 #@st.cache
 def load_data(nrows):
     data = pd.read_csv('Response_data_for_visualisation.csv')#, nrows=nrows)
@@ -163,6 +163,8 @@ print(df_location)
 
 
 # Define a layer to display on a map
+# TODO colour user by rank, add slider to inspect by date. check non- github.py file for example slider.
+
 st.subheader('Where has all this walking taken us?')
 st.pydeck_chart(pdk.Deck(
     map_style='mapbox://styles/mapbox/light-v9',
@@ -216,7 +218,8 @@ with st.spinner(text='video loading, please remain calm'):
     time.sleep(15)
 st.success('almost there... almost there... almost there...')
 
-#commented out video creation since streamlit deployment on github does not have ffmpeg video codec
+#TODO - commented out video creation since streamlit deployment on github does not have ffmpeg video codec.
+
 #bcr.bar_chart_race(
 #    df=race,
 #    filename='10k_race_video.mp4',
