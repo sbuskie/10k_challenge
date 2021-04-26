@@ -91,7 +91,7 @@ leaderboard['Rank'] = leaderboard['User'].rank(method='min', ascending=False)
 leaderboard['Total Entires'] = clean_data['User'].value_counts()
 #leaderboard = leaderboard.sort_values(by=['User'], ascending=False)
 
-st.subheader("Leaderboard")
+st.subheader("Leaderboard :muscle:")
 st.write(leaderboard[['Rank', 'Total Entires']])
 
 st.subheader("The most popular day for walking is...")
