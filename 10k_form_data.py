@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name('10k steps-1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
+creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
 client = gspread.authorize(creds)
 
 #Change to your Google Sheets Name
