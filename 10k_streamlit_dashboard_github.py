@@ -21,7 +21,7 @@ st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #image = Image.open('sunrise.jpg')
 #st.image(image, caption='Get out in those hills and get your steps')
 
-
+#TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
 #@st.cache
 def load_data(nrows):
@@ -116,6 +116,8 @@ st.subheader('Need to see the raw data too?')
 if st.checkbox("yeah, I said don't hold back"):
     st.subheader('Alrighty then')
     st.write(raw_data)
+
+#TODO dominance through time matrix by user
 
 #Bar chart
 #st.bar_chart(raw_data['user_cum'])
