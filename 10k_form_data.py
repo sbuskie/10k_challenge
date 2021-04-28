@@ -3,7 +3,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import numpy as np
 import time
-import os
 import streamlit as st
 
 #TODO Apply streamlit secrets. This requires TOML format not JSON. Following tutorial, converted key-to-toml.py, but fails on use.
@@ -13,9 +12,9 @@ scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/aut
 
 #trying to write this so it uses the toml following example: https://blog.streamlit.io/streamlit-firestore-continued/
 import json
-#key_dict = json.loads(st.secrets["textkey"])
-key_dict = json.loads(os.environ['textkey']) # this came from stackoverflow but also does not work: https://stackoverflow.com/questions/65576829/how-do-i-read-google-api-credentials-from-a-toml-file-with-python
-creds = ServiceAccountCredentials.from_json_keyfile_name(key_dict, scope)
+key_dict = json.loads(st.secrets["textkey"])
+#key_dict = json.loads(os.environ['textkey']) # this came from stackoverflow but also does not work: https://stackoverflow.com/questions/65576829/how-do-i-read-google-api-credentials-from-a-toml-file-with-python
+creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
 client = gspread.authorize(creds)
 
 #Change to your Google Sheets Name
