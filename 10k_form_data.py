@@ -5,15 +5,13 @@ import numpy as np
 import time
 import streamlit as st
 
-#TODO Apply streamlit secrets. This requires TOML format not JSON. Following tutorial, converted key-to-toml.py, but fails on use.
-scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-#below authenticates using json. Bad practice storing encrypted json on github
-#creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
 
-#trying to write this so it uses the toml following example: https://blog.streamlit.io/streamlit-firestore-continued/
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+#below authenticates using json. Bad practice storing encrypted json on github, so followed tutorial https://blog.streamlit.io/streamlit-firestore-continued/. Replace:
+#creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
+#With:
 import json
 key_dict = json.loads(st.secrets["textkey"])
-#key_dict = json.loads(os.environ['textkey']) # this came from stackoverflow but also does not work: https://stackoverflow.com/questions/65576829/how-do-i-read-google-api-credentials-from-a-toml-file-with-python
 creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
 client = gspread.authorize(creds)
 
