@@ -6,6 +6,7 @@ import time
 import os
 import streamlit as st
 
+#TODO Apply streamlit secrets. This requires TOML format not JSON. Following tutorial, converted key-to-toml.py, but fails on use.
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 #below authenticates using json. Bad practice storing encrypted json on github
 #creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
