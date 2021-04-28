@@ -3,6 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import numpy as np
 import time
+import os
 import streamlit as st
 
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -11,9 +12,9 @@ scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/aut
 
 #trying to write this so it uses the toml
 import json
-key_dict = json.loads(st.secrets["textkey"])
+#key_dict = json.loads(st.secrets["textkey"])
+key_dict = json.loads(os.environ['textkey'])
 creds = ServiceAccountCredentials.from_json_keyfile_name(key_dict, scope)
-#db = firestore.Client(credentials=creds, project="streamlit-reddit")
 client = gspread.authorize(creds)
 
 #Change to your Google Sheets Name
