@@ -5,6 +5,7 @@ import numpy as np
 import time
 
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+#below authenticates using json. Bad practice storing encrypted json on github
 creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
 client = gspread.authorize(creds)
 
