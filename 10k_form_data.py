@@ -3,10 +3,17 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import numpy as np
 import time
+import streamlit as st
 
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 #below authenticates using json. Bad practice storing encrypted json on github
-creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
+#creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
+
+#trying to write this so it uses the toml
+import json
+key_dict = json.loads(st.secrets["textkey"])
+creds = ServiceAccountCredentials.from_json_keyfile_name(key_dict, scope)
+#db = firestore.Client(credentials=creds, project="streamlit-reddit")
 client = gspread.authorize(creds)
 
 #Change to your Google Sheets Name
