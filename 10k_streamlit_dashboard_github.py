@@ -166,7 +166,7 @@ st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 
 #TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
-
+#@st.cache
 def load_data(nrows):
 	data = clean_data
 	data['date_time'] = pd.to_datetime(data['date_time'])
