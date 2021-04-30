@@ -83,8 +83,9 @@ if __name__ == '__main__':
 	main(spreadsheets)
 
 #second stage - read newly outputed file and run data cleaning steps
-df = main
+df = main(spreadsheets)
 print (df)
+#TODO need to parse dates in dataframe before the next step. This used to be done by pd.read_csv("file_name.csv", parse_dates=[0]) but need to do this in existing df
 #!super important if not using df only method
 #df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
 
