@@ -85,6 +85,8 @@ if __name__ == '__main__':
 #second stage - read newly outputed file and run data cleaning steps
 df = main(spreadsheets)
 print (df)
+
+raw_data = df
 #TODO need to parse dates in dataframe before the next step. This used to be done by pd.read_csv("file_name.csv", parse_dates=[0]) but need to do this in existing df
 #!super important if not using df only method
 #df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
@@ -143,7 +145,7 @@ df_location = pd.DataFrame(
 df = df.merge(df_location, on='user_location', how='left')
 
 #df['user_radius'] = df.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
-
+clean_data = df
 #Write df to csv for visualisation
 df.to_csv('Response_data_for_visualisation.csv', index=False)
 print("Written response data for visualisation, check 'Response_data_for_visualisation.csv'")
@@ -156,7 +158,7 @@ df_race.to_csv('10k_race_data_wide.csv', index='date_time')
 print("Written 10k race response data in wide format for bar_chart_race visualisation, check '10k_race_data_wide.csv'")
 print(df_race)
 print(df_location)
-
+race = df_race
 
 #TODO start of 10k_streamlit_dashboard pre-merge
 st.title('10k Challenge - 1000 hours for a bottle :beer:')
@@ -169,25 +171,25 @@ st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
 #@st.cache
 def load_data(nrows):
-	data = pd.read_csv('Response_data_for_visualisation.csv')#, nrows=nrows)
+	data = clean_data
 	data['date_time'] = pd.to_datetime(data['date_time'])
 	return data
 
-#@st.cache
+
 def load_race_data(nrows):
-	data = pd.read_csv('10k_race_data_wide.csv')#, nrows=nrows)
+	data = race.set_index('date_time')
 	data['date_time'] = pd.to_datetime(data['date_time'])
 	return data
 
 def load_raw_data(nrows):
-	data = pd.read_csv('10k_survey_google_output.csv')
+	data = raw_data
 	data['date_time'] = pd.to_datetime(data['date_time'])
 	return data
 
 #call the functions
 raw_data = load_raw_data(10000)
 clean_data = load_data(10000)
-race = load_race_data(10000).set_index('date_time') #date_time set as index in race dataframe for bar_chart_race
+race = load_race_data(10000)#.set_index('date_time') #date_time set as index in race dataframe for bar_chart_race
 
 #create dirty double table
 dirty_doubles = pd.DataFrame(raw_data['User'].value_counts())
