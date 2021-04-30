@@ -1,14 +1,9 @@
-import pandas as pd
-import streamlit as st
-import numpy as np
 import pydeck as pdk
 import datetime
 import bar_chart_race as bcr
 import math
 import altair as alt
 from altair import Chart, X, Y, Axis, SortField, OpacityValue
-
-import time
 import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
 import gspread
@@ -159,6 +154,8 @@ print("Written 10k race response data in wide format for bar_chart_race visualis
 print(df_race)
 print(df_location)
 race = df_race
+print(race)
+print('this is the race data - check date_time. this needs to be set to index')
 
 #TODO start of 10k_streamlit_dashboard pre-merge
 st.title('10k Challenge - 1000 hours for a bottle :beer:')
@@ -169,7 +166,7 @@ st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 
 #TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
-#@st.cache
+
 def load_data(nrows):
 	data = clean_data
 	data['date_time'] = pd.to_datetime(data['date_time'])
@@ -187,9 +184,9 @@ def load_raw_data(nrows):
 	return data
 
 #call the functions
-raw_data = load_raw_data(10000)
-clean_data = load_data(10000)
-race = load_race_data(10000)#.set_index('date_time') #date_time set as index in race dataframe for bar_chart_race
+#raw_data = load_raw_data(10000)
+#clean_data = load_data(10000)
+#race = load_race_data(10000)#.set_index('date_time') #date_time set as index in race dataframe for bar_chart_race
 
 #create dirty double table
 dirty_doubles = pd.DataFrame(raw_data['User'].value_counts())
@@ -198,7 +195,6 @@ dirty_doubles['clean_response'] = clean_data['User'].value_counts()
 dirty_doubles['number of dirty doubles'] = dirty_doubles['User']-dirty_doubles['clean_response']
 dirty_doubles = dirty_doubles.sort_values(by=['number of dirty doubles'], ascending=False)
 print(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
-
 
 #most popular days
 pop_days = pd.DataFrame(clean_data['date_time'])
