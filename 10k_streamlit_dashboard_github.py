@@ -59,6 +59,7 @@ def main(spreadsheets):
 
 		# Concat Dataframe
 		df = pd.concat([df, df_temp])
+		return df # added this line. Delete when writing to csv. Testing for combined file, trying to return function to df.
 
 		# API Limit Handling
 		time.sleep(5)
@@ -82,16 +83,18 @@ if __name__ == '__main__':
 	main(spreadsheets)
 
 #second stage - read newly outputed file and run data cleaning steps
-df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
-
+df = main
+print (df)
+#!super important if not using df only method
+#df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
 
 print("Data loaded! starting data cleaning...")
 
 #time zone correction
 df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
-                               #np.where(df['User'] == 'Watson', 12,
-                                         #np.where(df['User'] == 'Sam H', 1,
-                                                  #0)))
+							   #np.where(df['User'] == 'Watson', 12,
+										 #np.where(df['User'] == 'Sam H', 1,
+												  #0)))
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
 df['date_time'] = df['date_time'] - df['GMT_delta']
 
@@ -101,8 +104,8 @@ df['date_time'] = df['date_time'].dt.date
 df = df.drop(['GMT_delta'], axis=1)
 #remove date duplicates
 df = df.drop_duplicates(
-    subset = ["date_time", 'User'],
-    keep = 'last').reset_index(drop=True)
+	subset = ["date_time", 'User'],
+	keep = 'last').reset_index(drop=True)
 
 #replace 'Yes' with 1 int
 df['Response'] = df['Response'].replace(['Yes'],'1').astype(str).astype(int)
@@ -130,10 +133,10 @@ df['user_location'] = df['User']
 #add location coordinates
 
 df_location = pd.DataFrame(
-    {'user_location': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
-     'City': ['Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
-     'Latitude': [29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
-     'Longitude': [-95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142]})
+	{'user_location': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
+	 'City': ['Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
+	 'Latitude': [29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
+	 'Longitude': [-95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142]})
 df = df.merge(df_location, on='user_location', how='left')
 
 #df['user_radius'] = df.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
@@ -158,28 +161,25 @@ st.title('10k Challenge - 1000 hours for a bottle :beer:')
 st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image('./RDGSC.jpg')
 
-#from PIL import Image
-#image = Image.open('sunrise.jpg')
-#st.image(image, caption='Get out in those hills and get your steps')
 
 #TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
 #@st.cache
 def load_data(nrows):
-    data = pd.read_csv('Response_data_for_visualisation.csv')#, nrows=nrows)
-    data['date_time'] = pd.to_datetime(data['date_time'])
-    return data
+	data = pd.read_csv('Response_data_for_visualisation.csv')#, nrows=nrows)
+	data['date_time'] = pd.to_datetime(data['date_time'])
+	return data
 
 #@st.cache
 def load_race_data(nrows):
-    data = pd.read_csv('10k_race_data_wide.csv')#, nrows=nrows)
-    data['date_time'] = pd.to_datetime(data['date_time'])
-    return data
+	data = pd.read_csv('10k_race_data_wide.csv')#, nrows=nrows)
+	data['date_time'] = pd.to_datetime(data['date_time'])
+	return data
 
 def load_raw_data(nrows):
-    data = pd.read_csv('10k_survey_google_output.csv')
-    data['date_time'] = pd.to_datetime(data['date_time'])
-    return data
+	data = pd.read_csv('10k_survey_google_output.csv')
+	data['date_time'] = pd.to_datetime(data['date_time'])
+	return data
 
 #call the functions
 raw_data = load_raw_data(10000)
@@ -240,8 +240,8 @@ st.write(num_days)
 
 st.subheader("Do y'all wanna see the data?")
 if st.checkbox('yeah, show me the data!'):
-    st.subheader('Your wish is my command')
-    st.write(clean_data[['date_time', 'User', 'steps', 'user_cum', 'dominance', 'user_cum_steps', 'user_total_distance', 'cum_sum', 'cum_steps']])
+	st.subheader('Your wish is my command')
+	st.write(clean_data[['date_time', 'User', 'steps', 'user_cum', 'dominance', 'user_cum_steps', 'user_total_distance', 'cum_sum', 'cum_steps']])
 
 #check box for race data
 #st.subheader('Wanna see the race data too?')
@@ -250,13 +250,13 @@ if st.checkbox('yeah, show me the data!'):
 #    st.write(race)
 
 if st.checkbox("I didn't ask you to hold back, show me the dirty doubles too!"):
-    st.subheader('If you must :poop:')
-    st.write(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
+	st.subheader('If you must :poop:')
+	st.write(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
 
 st.subheader('Need to see the raw data too?')
 if st.checkbox("yeah, I said don't hold back"):
-    st.subheader('Alrighty then')
-    st.write(raw_data)
+	st.subheader('Alrighty then')
+	st.write(raw_data)
 
 #TODO dominance through time matrix by user
 
@@ -290,11 +290,11 @@ print(race)
 
 #create dumb map - max distance walked. could improve with slider vs time to show progress.
 df_location = pd.DataFrame(
-    {'User': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
-     'City': ['Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
-     'Latitude': [29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
-     'Longitude': [-95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142],
-     'user_radius': [1.0, 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0]})
+	{'User': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
+	 'City': ['Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
+	 'Latitude': [29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
+	 'Longitude': [-95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142],
+	 'user_radius': [1.0, 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0]})
 grouped = pd.DataFrame(
 {#'User': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
  'user_radius': df_clean.groupby("User")['user_total_distance'].max()})
@@ -315,34 +315,34 @@ print(df_location)
 
 st.subheader('Where has all this walking taken us?')
 st.pydeck_chart(pdk.Deck(
-    map_style='mapbox://styles/mapbox/light-v9',
-    initial_view_state=pdk.ViewState(
-        latitude=57.051536150778986,
-        longitude=-2.5052866770165534,
-        zoom=4,
-        bearing=0,
-        pitch=0,
-    ),
-    layers=[
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=df_location,
-            pickable=True,
-            opacity=0.05,
-            stroked=True,
-            filled=True,
-            radius_scale=1000, #convert from m to km,
-            #radius_min_pixels=1,
-            #radius_max_pixels=100,
-            line_width_min_pixels=1,
-            get_position=['Longitude', 'Latitude'],
-            get_radius="user_radius_y",
-            radiusUnits="meters",
-            get_fill_color=[255, 140, 0], # can pass a function here to change color based on position
-            get_line_color=[0, 0, 0],
-        ),
-    ],
-    tooltip={"text": "{User}\nhas walked\n{distance_walked (km)}km"}
+	map_style='mapbox://styles/mapbox/light-v9',
+	initial_view_state=pdk.ViewState(
+		latitude=57.051536150778986,
+		longitude=-2.5052866770165534,
+		zoom=4,
+		bearing=0,
+		pitch=0,
+	),
+	layers=[
+		pdk.Layer(
+			"ScatterplotLayer",
+			data=df_location,
+			pickable=True,
+			opacity=0.05,
+			stroked=True,
+			filled=True,
+			radius_scale=1000, #convert from m to km,
+			#radius_min_pixels=1,
+			#radius_max_pixels=100,
+			line_width_min_pixels=1,
+			get_position=['Longitude', 'Latitude'],
+			get_radius="user_radius_y",
+			radiusUnits="meters",
+			get_fill_color=[255, 140, 0], # can pass a function here to change color based on position
+			get_line_color=[0, 0, 0],
+		),
+	],
+	tooltip={"text": "{User}\nhas walked\n{distance_walked (km)}km"}
 ))
 
 #https://deckgl.readthedocs.io/en/latest/layer.html
@@ -363,7 +363,7 @@ st.subheader("This isn't a race, but if it was, it would probably be the best ra
 
 
 with st.spinner(text='video loading, please remain calm'):
-    time.sleep(15)
+	time.sleep(15)
 st.success('almost there... almost there... almost there...')
 
 #TODO - commented out video creation since streamlit deployment on github does not have ffmpeg video codec.
