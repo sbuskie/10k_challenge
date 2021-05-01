@@ -73,16 +73,16 @@ def convert_column_names(x):
 		return x
 
 
-if __name__ == '__main__':
-	print('Scraping Form Data')
-	main(spreadsheets)
-
+#if __name__ == '__main__':
+#	print('Scraping Form Data')
+#	main(spreadsheets)
+print('scraping form data ... again')
 #second stage - read newly outputed file and run data cleaning steps
 df = main(spreadsheets)
 print (df)
 
 raw_data = df
-raw_data.to_csv('10k_survey_google_output.csv', index=False)
+#raw_data.to_csv('10k_survey_google_output.csv', index=False)
 #TODO need to parse dates in dataframe before the next step. This used to be done by pd.read_csv("file_name.csv", parse_dates=[0]) but need to do this in existing df
 #!super important if not using df only method
 #df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
@@ -143,14 +143,14 @@ df = df.merge(df_location, on='user_location', how='left')
 #df['user_radius'] = df.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
 clean_data = df
 #Write df to csv for visualisation
-df.to_csv('Response_data_for_visualisation.csv', index=False)
+#df.to_csv('Response_data_for_visualisation.csv', index=False)
 print("Written response data for visualisation, check 'Response_data_for_visualisation.csv'")
 
 #Create dataframe for bar_char_race
 df_race = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_cum")#, aggfunc=[np.sum], fill_value=0)
 df_race = df_race.fillna(method='ffill')
 df_race = df_race.fillna(value=0)
-df_race.to_csv('10k_race_data_wide.csv', index='date_time')
+#df_race.to_csv('10k_race_data_wide.csv', index='date_time')
 print("Written 10k race response data in wide format for bar_chart_race visualisation, check '10k_race_data_wide.csv'")
 print(df_race)
 print(df_location)
