@@ -18,6 +18,7 @@ scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/aut
 #below authenticates using json. Bad practice storing encrypted json on github, so followed tutorial https://blog.streamlit.io/streamlit-firestore-continued/. Replace:
 #creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
 #With:
+
 import json
 key_dict = json.loads(st.secrets["textkey"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
@@ -90,7 +91,7 @@ print("Data loaded. Good start. Next, trying to parse dates in df")
 df['date_time'] = pd.to_datetime(df['date_time'])
 
 print("Data loaded! starting data cleaning...")
-
+#TODO fix for BST so the boys get their witching hour steps
 #time zone correction
 df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
 							   #np.where(df['User'] == 'Watson', 12,
@@ -98,7 +99,7 @@ df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
 												  #0)))
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
 df['date_time'] = df['date_time'] - df['GMT_delta']
-
+print(df)
 #convert from datetime to date
 df['date_time'] = df['date_time'].dt.date
 #remove column
@@ -163,7 +164,8 @@ st.title('10k Challenge - 1000 hours for a bottle :beer:')
 #st.image('./RDGSC2.png', caption='Get out in those hills and get your steps')
 st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image('./RDGSC.jpg')
-
+st.subheader('submit your entires here:')
+st.subheader('')
 
 #TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
