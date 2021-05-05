@@ -28,7 +28,7 @@ def main(spreadsheets):
 		sh = client.open(spreadsheet)
 
 		# Get all values in the first worksheet
-		worksheet = sh.get_worksheet(1)
+		worksheet = sh.get_worksheet(0)
 		data = worksheet.get_all_values()
 
 		# Save the data inside the temporary pandas dataframe

@@ -164,8 +164,7 @@ st.title('10k Challenge - 1000 hours for a bottle :beer:')
 #st.image('./RDGSC2.png', caption='Get out in those hills and get your steps')
 st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image('./RDGSC.jpg')
-st.subheader('submit your entires here:')
-st.subheader('')
+st.subheader('Buy your raffle tickets here: https://forms.gle/d9WxY9PvtXFNVc59A')
 
 #TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
