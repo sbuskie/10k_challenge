@@ -160,7 +160,7 @@ print(race)
 print('this is the race data - check date_time. this needs to be set to index')
 
 #TODO start of 10k_streamlit_dashboard pre-merge
-st.title('10k Challenge - 1000 hours for a bottle :beer:')
+st.title('10k Challenge - All this for a bottle :beer:')
 #st.image('./RDGSC2.png', caption='Get out in those hills and get your steps')
 st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image('./RDGSC.jpg')
