@@ -150,13 +150,13 @@ print(race)
 
 #create dumb map - max distance walked. could improve with slider vs time to show progress.
 df_location = pd.DataFrame(
-    {'User': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
-     'City': ['Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
-     'Latitude': [29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
-     'Longitude': [-95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142],
-     'user_radius': [1.0, 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0]})
+	{'User': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
+	 'City': ['Aberdeen', 'Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
+	 'Latitude': [57.12664782485791, 29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
+	 'Longitude': [-2.1194205303315305, -95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142],
+	 'user_radius': [1.0, 1.0, 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0]})
 grouped = pd.DataFrame(
-{#'User': ['Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
+{#'User': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
  'user_radius': df_clean.groupby("User")['user_total_distance'].max()})
 print(grouped)
 df_location = df_location.merge(grouped, on='User', how='left') # this doesn't work since no 'user_radius' column in df_location.
