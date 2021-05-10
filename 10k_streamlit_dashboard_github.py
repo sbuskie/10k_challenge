@@ -1,50 +1,194 @@
-import pandas as pd
-import streamlit as st
-import numpy as np
 import pydeck as pdk
 import datetime
 import bar_chart_race as bcr
 import math
 import altair as alt
 from altair import Chart, X, Y, Axis, SortField, OpacityValue
-
-import time
 import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
+import numpy as np
+import time
+import streamlit as st
+
+#TODO must add secrets.toml entire text into streamlit secrets during deployment
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+#below authenticates using json. Bad practice storing encrypted json on github, so followed tutorial https://blog.streamlit.io/streamlit-firestore-continued/. Replace:
+#creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
+#With:
+
+import json
+key_dict = json.loads(st.secrets["textkey"])
+creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
+client = gspread.authorize(creds)
+
+#Change to your Google Sheets Name
+#can add more spreadsheets as in example - spreadsheets = ['dummy_10k_response','dummy_data_pcr_test']
+spreadsheets = ['Results']
 
 
+def main(spreadsheets):
+	df = pd.DataFrame()
+
+	for spreadsheet in spreadsheets:
+		# Open the Spreadsheet
+		sh = client.open(spreadsheet)
+
+		# Get all values in the first worksheet
+		worksheet = sh.get_worksheet(0)
+		data = worksheet.get_all_values()
+
+		# Save the data inside the temporary pandas dataframe
+		df_temp = pd.DataFrame(columns=[i for i in range(len(data[0]))])
+		for i in range(1, len(data)):
+			df_temp.loc[len(df_temp)] = data[i]
+
+		#Convert column names
+		column_names = data[0]
+		df_temp.columns = [convert_column_names(x) for x in column_names]
+
+		# Data Cleaning
+		df_temp['Response'] = df_temp['Response'].replace({'': 'Yes'})
+
+
+		# Concat Dataframe
+		df = pd.concat([df, df_temp])
+		return df # added this line. Delete when writing to csv. Testing for combined file, trying to return function to df.
+
+		# API Limit Handling
+		time.sleep(5)
+
+#this line below does nothing after the return df was added above. Output file outside of function
+	#df.to_csv('10k_survey_google_output.csv', index=False)
+
+def convert_column_names(x):
+	if x == 'Timestamp':
+		return 'date_time'
+	elif x == 'What is your name?':
+		return 'User'
+	elif x == 'I walked 10000 steps today':
+		return 'Response'
+	else:
+		return x
+
+
+#if __name__ == '__main__':
+#	print('Scraping Form Data')
+#	main(spreadsheets)
+print('scraping form data ... again')
+#second stage - read newly outputed file and run data cleaning steps
+df = main(spreadsheets)
+print (df)
+
+raw_data = df
+#raw_data.to_csv('10k_survey_google_output.csv', index=False)
+#TODO need to parse dates in dataframe before the next step. This used to be done by pd.read_csv("file_name.csv", parse_dates=[0]) but need to do this in existing df
+#!super important if not using df only method
+#df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
+print("Data loaded. Good start. Next, trying to parse dates in df")
+df['date_time'] = pd.to_datetime(df['date_time'])
+
+print("Data loaded! starting data cleaning...")
+#TODO fix for BST so the boys get their witching hour steps
+#time zone correction
+df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
+							   #np.where(df['User'] == 'Watson', 12,
+										 #np.where(df['User'] == 'Sam H', 1,
+												  #0)))
+df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
+df['date_time'] = df['date_time'] - df['GMT_delta']
+print(df)
+#convert from datetime to date
+df['date_time'] = df['date_time'].dt.date
+#remove column
+df = df.drop(['GMT_delta'], axis=1)
+#remove date duplicates
+df = df.drop_duplicates(
+	subset = ["date_time", 'User'],
+	keep = 'last').reset_index(drop=True)
+
+#replace 'Yes' with 1 int
+df['Response'] = df['Response'].replace(['Yes'],'1').astype(str).astype(int)
+
+
+#calculate metrics
+df['steps'] = df.apply(lambda row: row.Response * 10000, axis=1)
+#df['distance'] = df.apply(lambda row: row.steps *(11.8/15678), axis=1)
+
+df['relative_dist'] = np.where(df['User'] == 'Darnell', 0.00069, 0.00075)#,
+df['distance'] = df['steps'] * df['relative_dist']
+df['user_total_distance'] = df.groupby(by=['User'])['distance'].transform(lambda x: x.cumsum())
+df = df.drop(['relative_dist'], axis=1)
+# here could normalise distance if dan distance is less.
+
+#calculate cumulative response per user and their dominance
+df['cum_sum'] = df["Response"].cumsum()
+df['cum_steps'] = df['steps'].cumsum()
+df['user_cum'] = df.groupby(by=['User'])['Response'].transform(lambda x: x.cumsum())
+df['user_cum_steps'] = df.user_cum*10000
+df['Current_dominance'] = round(100*df.user_cum/df["Response"].sum(),2)
+df['dominance'] = round(100*df.user_cum/df.cum_sum,2)
+df['user_location'] = df['User']
+
+#add location coordinates
+
+df_location = pd.DataFrame(
+	{'user_location': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
+	 'City': ['Aberdeen', 'Houston', 'Banchory', 'Auchterarder', 'Edinburgh', 'Glasgow', 'Banchory', 'Den Hague', 'Edinburgh', 'Edinburgh', 'Melbourne'],
+	 'Latitude': [57.12664782485791, 29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
+	 'Longitude': [-2.1194205303315305, -95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142]})
+df = df.merge(df_location, on='user_location', how='left')
+
+#df['user_radius'] = df.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
+clean_data = df
+#Write df to csv for visualisation
+#df.to_csv('Response_data_for_visualisation.csv', index=False)
+print("Written response data for visualisation, check 'Response_data_for_visualisation.csv'")
+
+#Create dataframe for bar_char_race
+df_race = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_cum")#, aggfunc=[np.sum], fill_value=0)
+df_race = df_race.fillna(method='ffill')
+df_race = df_race.fillna(value=0)
+#df_race.to_csv('10k_race_data_wide.csv', index='date_time')
+print("Written 10k race response data in wide format for bar_chart_race visualisation, check '10k_race_data_wide.csv'")
+print(df_race)
+print(df_location)
+race = df_race
+print(race)
+print('this is the race data - check date_time. this needs to be set to index')
+
+#TODO start of 10k_streamlit_dashboard pre-merge
 st.title('10k Challenge - 1000 hours for a bottle :beer:')
 #st.image('./RDGSC2.png', caption='Get out in those hills and get your steps')
 st.image('./RDGSC3.png', caption='Get out into those hills and get your steps')
 #st.image('./RDGSC.jpg')
-
-#from PIL import Image
-#image = Image.open('sunrise.jpg')
-#st.image(image, caption='Get out in those hills and get your steps')
+st.subheader('Buy your raffle tickets here: https://forms.gle/d9WxY9PvtXFNVc59A')
 
 #TODO combine 10k_form_data.py with this, deploy streamlit secrets since upgrade to streamlit==0.80.0 from 0.77.0 and use cache
 #TODO caching the data if def load_data is reading and manipulating large data source. If json on github is not a security risk, keep all data in terp pandas df, stop writing to .csv
 #@st.cache
 def load_data(nrows):
-    data = pd.read_csv('Response_data_for_visualisation.csv')#, nrows=nrows)
-    data['date_time'] = pd.to_datetime(data['date_time'])
-    return data
+	data = clean_data
+	data['date_time'] = pd.to_datetime(data['date_time'])
+	return data
 
-#@st.cache
+
 def load_race_data(nrows):
-    data = pd.read_csv('10k_race_data_wide.csv')#, nrows=nrows)
-    data['date_time'] = pd.to_datetime(data['date_time'])
-    return data
+	data = race.set_index('date_time')
+	data['date_time'] = pd.to_datetime(data['date_time'])
+	return data
 
 def load_raw_data(nrows):
-    data = pd.read_csv('10k_survey_google_output.csv')
-    data['date_time'] = pd.to_datetime(data['date_time'])
-    return data
+	data = raw_data
+	data['date_time'] = pd.to_datetime(data['date_time'])
+	return data
 
 #call the functions
-raw_data = load_raw_data(10000)
-clean_data = load_data(10000)
-race = load_race_data(10000).set_index('date_time') #date_time set as index in race dataframe for bar_chart_race
+#raw_data = load_raw_data(10000)
+#clean_data = load_data(10000)
+#race = load_race_data(10000)#.set_index('date_time') #date_time set as index in race dataframe for bar_chart_race
 
 #create dirty double table
 dirty_doubles = pd.DataFrame(raw_data['User'].value_counts())
@@ -53,7 +197,6 @@ dirty_doubles['clean_response'] = clean_data['User'].value_counts()
 dirty_doubles['number of dirty doubles'] = dirty_doubles['User']-dirty_doubles['clean_response']
 dirty_doubles = dirty_doubles.sort_values(by=['number of dirty doubles'], ascending=False)
 print(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
-
 
 #most popular days
 pop_days = pd.DataFrame(clean_data['date_time'])
@@ -100,8 +243,8 @@ st.write(num_days)
 
 st.subheader("Do y'all wanna see the data?")
 if st.checkbox('yeah, show me the data!'):
-    st.subheader('Your wish is my command')
-    st.write(clean_data[['date_time', 'User', 'steps', 'user_cum', 'dominance', 'user_cum_steps', 'user_total_distance', 'cum_sum', 'cum_steps']])
+	st.subheader('Your wish is my command')
+	st.write(clean_data[['date_time', 'User', 'steps', 'user_cum', 'dominance', 'user_cum_steps', 'user_total_distance', 'cum_sum', 'cum_steps']])
 
 #check box for race data
 #st.subheader('Wanna see the race data too?')
@@ -110,13 +253,13 @@ if st.checkbox('yeah, show me the data!'):
 #    st.write(race)
 
 if st.checkbox("I didn't ask you to hold back, show me the dirty doubles too!"):
-    st.subheader('If you must :poop:')
-    st.write(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
+	st.subheader('If you must :poop:')
+	st.write(dirty_doubles[['dubious_response', 'clean_response', 'number of dirty doubles']])
 
 st.subheader('Need to see the raw data too?')
 if st.checkbox("yeah, I said don't hold back"):
-    st.subheader('Alrighty then')
-    st.write(raw_data)
+	st.subheader('Alrighty then')
+	st.write(raw_data)
 
 #TODO dominance through time matrix by user
 
@@ -175,34 +318,34 @@ print(df_location)
 
 st.subheader('Where has all this walking taken us?')
 st.pydeck_chart(pdk.Deck(
-    map_style='mapbox://styles/mapbox/light-v9',
-    initial_view_state=pdk.ViewState(
-        latitude=57.051536150778986,
-        longitude=-2.5052866770165534,
-        zoom=4,
-        bearing=0,
-        pitch=0,
-    ),
-    layers=[
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=df_location,
-            pickable=True,
-            opacity=0.05,
-            stroked=True,
-            filled=True,
-            radius_scale=1000, #convert from m to km,
-            #radius_min_pixels=1,
-            #radius_max_pixels=100,
-            line_width_min_pixels=1,
-            get_position=['Longitude', 'Latitude'],
-            get_radius="user_radius_y",
-            radiusUnits="meters",
-            get_fill_color=[255, 140, 0], # can pass a function here to change color based on position
-            get_line_color=[0, 0, 0],
-        ),
-    ],
-    tooltip={"text": "{User}\nhas walked\n{distance_walked (km)}km"}
+	map_style='mapbox://styles/mapbox/light-v9',
+	initial_view_state=pdk.ViewState(
+		latitude=57.051536150778986,
+		longitude=-2.5052866770165534,
+		zoom=4,
+		bearing=0,
+		pitch=0,
+	),
+	layers=[
+		pdk.Layer(
+			"ScatterplotLayer",
+			data=df_location,
+			pickable=True,
+			opacity=0.05,
+			stroked=True,
+			filled=True,
+			radius_scale=1000, #convert from m to km,
+			#radius_min_pixels=1,
+			#radius_max_pixels=100,
+			line_width_min_pixels=1,
+			get_position=['Longitude', 'Latitude'],
+			get_radius="user_radius_y",
+			radiusUnits="meters",
+			get_fill_color=[255, 140, 0], # can pass a function here to change color based on position
+			get_line_color=[0, 0, 0],
+		),
+	],
+	tooltip={"text": "{User}\nhas walked\n{distance_walked (km)}km"}
 ))
 
 #https://deckgl.readthedocs.io/en/latest/layer.html
@@ -223,7 +366,7 @@ st.subheader("This isn't a race, but if it was, it would probably be the best ra
 
 
 with st.spinner(text='video loading, please remain calm'):
-    time.sleep(15)
+	time.sleep(15)
 st.success('almost there... almost there... almost there...')
 
 #TODO - commented out video creation since streamlit deployment on github does not have ffmpeg video codec.
