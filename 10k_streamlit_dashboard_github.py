@@ -365,7 +365,7 @@ print(race)
 st.subheader("This isn't a race, but if it was, it would probably be the best race in the world")
 
 
-with st.spinner(text='video loading, please remain calm'):
+#with st.spinner(text='video loading, please remain calm'):
 #	time.sleep(15)
 #st.success('almost there... almost there... almost there...')
 
