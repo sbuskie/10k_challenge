@@ -13,7 +13,7 @@ import numpy as np
 import time
 import streamlit as st
 
-#TODO must add secrets.toml entire text into streamlit secrets during deployment
+#TODO must add secrets.toml entire text into streamlit secrets during deployment - done
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 #below authenticates using json. Bad practice storing encrypted json on github, so followed tutorial https://blog.streamlit.io/streamlit-firestore-continued/. Replace:
 #creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
