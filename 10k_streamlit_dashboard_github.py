@@ -233,6 +233,7 @@ print(num_days)
 leaderboard = pd.DataFrame(clean_data['User'].value_counts())
 leaderboard['Rank'] = leaderboard['User'].rank(method='min', ascending=False)
 leaderboard['Total Entires'] = clean_data['User'].value_counts()
+leaderboard['Dominance'] = clean_data['dominance'].max()
 #leaderboard = leaderboard.sort_values(by=['User'], ascending=False)
 
 st.subheader("Leaderboard :trophy:")
@@ -359,7 +360,7 @@ st.pydeck_chart(pdk.Deck(
 
 
 
-print(race)
+
 #####RACE########
 
 st.subheader("This isn't a race, but if it was, it would probably be the best race in the world")
