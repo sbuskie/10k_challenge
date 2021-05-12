@@ -226,7 +226,7 @@ print(num_days)
 # We now merge them
 #result = pd.concat([all_days_count, days_in_df], axis=1, sort=True)
 
-# Finnaly we can get the ration
+# Finnaly we can get the rations
 #result['day'] / result['all_days']
 
 
