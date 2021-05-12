@@ -182,7 +182,7 @@ def load_race_data(nrows):
 
 def load_raw_data(nrows):
 	data = raw_data
-	data['date_time'] = pd.to_datetime(data['date_time'])
+#	data['date_time'] = pd.to_datetime(data['date_time'])
 	return data
 
 #call the functions
@@ -261,7 +261,7 @@ if st.checkbox("I didn't ask you to hold back, show me the dirty doubles too!"):
 st.subheader('Need to see the raw data too?')
 if st.checkbox("yeah, I said don't hold back"):
 	st.subheader('Alrighty then')
-	st.write(raw_data)
+	st.write(raw_data[['date_time', 'User', 'Response']])
 
 #TODO dominance through time matrix by user
 
