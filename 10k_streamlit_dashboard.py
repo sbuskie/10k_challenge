@@ -90,10 +90,11 @@ print(num_days)
 leaderboard = pd.DataFrame(clean_data['User'].value_counts())
 leaderboard['Rank'] = leaderboard['User'].rank(method='min', ascending=False)
 leaderboard['Total Entires'] = clean_data['User'].value_counts()
+leaderboard['Dominance'] = clean_data['dominance'].max()
 #leaderboard = leaderboard.sort_values(by=['User'], ascending=False)
 
 st.subheader("Leaderboard")
-st.write(leaderboard[['Rank', 'Total Entires']])
+st.write(leaderboard[['Rank', 'Total Entires', 'Dominance']])
 
 st.subheader("The most popular day for walking is...")
 st.write(num_days)
