@@ -237,7 +237,7 @@ leaderboard['Dominance'] = clean_data['dominance'].max()
 #leaderboard = leaderboard.sort_values(by=['User'], ascending=False)
 
 st.subheader("Leaderboard :trophy:")
-st.write(leaderboard[['Rank', 'Total Entires']])
+st.write(leaderboard[['Rank', 'Total Entires', 'Total Entires']])
 
 st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
