@@ -80,9 +80,11 @@ def convert_column_names(x):
 print('scraping form data ... again')
 #second stage - read newly outputed file and run data cleaning steps
 df = main(spreadsheets)
-print (df)
+print(df)
 
 raw_data = df
+
+
 #raw_data.to_csv('10k_survey_google_output.csv', index=False)
 #TODO need to parse dates in dataframe before the next step. This used to be done by pd.read_csv("file_name.csv", parse_dates=[0]) but need to do this in existing df
 #!super important if not using df only method
@@ -99,9 +101,13 @@ df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
 												  #0)))
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
 df['date_time'] = df['date_time'] - df['GMT_delta']
-print(df)
+
+#TODO raw data is losing the timestamp here, but it is really for the clean data steps. Need to define raw_data as something that is no longer adjusted
+rawest_data = pd.DataFrame(raw_data)
+print(rawest_data)
 #convert from datetime to date
 df['date_time'] = df['date_time'].dt.date
+
 #remove column
 df = df.drop(['GMT_delta'], axis=1)
 #remove date duplicates
@@ -261,7 +267,7 @@ if st.checkbox("I didn't ask you to hold back, show me the dirty doubles too!"):
 st.subheader('Need to see the raw data too?')
 if st.checkbox("yeah, I said don't hold back"):
 	st.subheader('Alrighty then')
-	st.write(raw_data[['date_time', 'User', 'Response']])
+	st.write(rawest_data[['date_time', 'User', 'Response']])
 
 #TODO dominance through time matrix by user
 
