@@ -366,7 +366,7 @@ st.subheader("This isn't a race, but if it was, it would probably be the best ra
 
 
 with st.spinner(text='video loading, please remain calm'):
-	time.sleep(15)
+	time.sleep(1)
 st.success('almost there... almost there... almost there...')
 
 #TODO - commented out video creation since streamlit deployment on github does not have ffmpeg video codec.
