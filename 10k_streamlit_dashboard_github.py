@@ -107,7 +107,10 @@ rawest_data = pd.DataFrame(raw_data)
 print(rawest_data)
 #convert from datetime to date
 df['date_time'] = df['date_time'].dt.date
+#TODO for some reason rawest data is being changed by df when it should have been its ownn
 
+print('is rawest data including time? it should be')
+print(rawest_data)
 #remove column
 df = df.drop(['GMT_delta'], axis=1)
 #remove date duplicates
@@ -319,7 +322,7 @@ df_location['distance_walked (km)'] = round(df_location.user_radius_y/1,0)
 #df_location['user_radius'] = clean_data.groupby('User')['user_total_distance'].transform('max')
 #df_location["user_radius3"] = clean_data.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
 print(df_location)
-
+print(rawest_data)
 
 # Define a layer to display on a map
 # TODO colour user by rank, add slider to inspect by date. check non- github.py file for example slider.
