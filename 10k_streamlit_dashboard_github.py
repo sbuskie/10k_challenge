@@ -301,9 +301,9 @@ print(clean_data)
 print(race)
 
 #TODO link slider to user radius
-#sldier for date selection on map-this should work now
-st.subheader("Date Range")
-date_selected = st.slider('Choose a date within the 10k challenge',
+#sldier for date selection on map
+st.subheader("Not all those who wander are lost")
+date_selected = st.slider('Choose a date to see where you were',
 			  min_value=datetime.date(2021,2,1), max_value= race.index.max())
 st.write("Date:", date_selected)
 
