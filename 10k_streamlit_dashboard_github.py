@@ -157,10 +157,16 @@ clean_data = df
 print("Written response data for visualisation, check 'Response_data_for_visualisation.csv'")
 
 #Create dataframe for bar_char_race
-df_race = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_cum")#, aggfunc=[np.sum], fill_value=0)
+df_race = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_total_distance")#, aggfunc=[np.sum], fill_value=0)
 df_race = df_race.fillna(method='ffill')
 df_race = df_race.fillna(value=0)
 #df_race.to_csv('10k_race_data_wide.csv', index='date_time')
+
+df_radii = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_cum")#, aggfunc=[np.sum], fill_value=0)
+df_radii = df_race.fillna(method='ffill')
+df_radii = df_race.fillna(value=0)
+
+
 print("Written 10k race response data in wide format for bar_chart_race visualisation, check '10k_race_data_wide.csv'")
 print(df_race)
 print(df_location)
@@ -297,10 +303,11 @@ print(race)
 #TODO link slider to user radius
 #sldier for date selection on map
 st.subheader("Date Range")
-x = st.slider('Choose a date within the 10k challenge',
+date_selected = st.slider('Choose a date within the 10k challenge',
 			  min_value=datetime.date(2021,2,1), max_value=datetime.date(2021,11,1))
-st.write("Date:", x)
+st.write("Date:", date_selected)
 
+user_radii = df_radii.loc[date_selected]
 
 #create dumb map - max distance walked. could improve with slider vs time to show progress.
 df_location = pd.DataFrame(
@@ -419,3 +426,5 @@ st.video('./10k_race_video.mp4')
 #automation chron works, but is unix based and mac must be on. anachron can do it if mac is offline, but has been depreciated and replaced by launchd (https://medium.com/swlh/how-to-use-launchd-to-run-services-in-macos-b972ed1e352)
 #https://www.jcchouinard.com/python-automation-with-cron-on-mac/
 #0 0 * * * cd /Users/stephenbuskie/PycharmProjects/10k && /Users/stephenbuskie/opt/anaconda3/envs/streamlit/bin/python 10k_form_data.py
+
+print(user_radii)
