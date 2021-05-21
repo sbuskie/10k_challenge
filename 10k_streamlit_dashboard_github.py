@@ -304,7 +304,7 @@ print(race)
 #sldier for date selection on map
 st.subheader("Date Range")
 date_selected = st.slider('Choose a date within the 10k challenge',
-			  min_value=datetime.date(2021,2,1), max_value=datetime.date(2021,11,1))
+			  min_value=datetime.date(2021,2,1), max_value= race.index.max())
 st.write("Date:", date_selected)
 
 user_radii = df_radii.loc[date_selected]
