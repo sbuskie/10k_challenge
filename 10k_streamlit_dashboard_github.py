@@ -304,7 +304,7 @@ print(race)
 #sldier for date selection on map-that works
 st.subheader("Not all those who wander are lost")
 date_selected = st.slider('Choose a date to see where you were',
-			  min_value=datetime.date(2021,2,1), max_value= race.index.max())
+			  min_value=datetime.date(2021,2,1), max_value= race.index.max(), value=race.index.max())
 st.write("Date:", date_selected)
 
 user_radii = df_radii.loc[date_selected]
