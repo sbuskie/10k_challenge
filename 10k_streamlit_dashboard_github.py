@@ -308,7 +308,8 @@ date_selected = st.slider('Choose a date within the 10k challenge',
 st.write("Date:", date_selected)
 
 user_radii = df_radii.loc[date_selected]
-
+print(user_radii)
+st.write(user_radii)
 #create dumb map - max distance walked. could improve with slider vs time to show progress.
 df_location = pd.DataFrame(
 	{'User': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
@@ -427,4 +428,3 @@ st.video('./10k_race_video.mp4')
 #https://www.jcchouinard.com/python-automation-with-cron-on-mac/
 #0 0 * * * cd /Users/stephenbuskie/PycharmProjects/10k && /Users/stephenbuskie/opt/anaconda3/envs/streamlit/bin/python 10k_form_data.py
 
-print(user_radii)
