@@ -295,7 +295,7 @@ if st.checkbox("yeah, I said don't hold back"):
 #map
 # Use pandas to calculate additional data
 df_clean = pd.DataFrame(clean_data)
-#df_clean["user_radius"] = df_clean.groupby(by=['User'])["user_total_distance"].transform(lambda x: x.max())
+
 print(raw_data)
 print(clean_data)
 print(race)
@@ -308,8 +308,8 @@ date_selected = st.slider('Choose a date within the 10k challenge',
 st.write("Date:", date_selected)
 
 user_radii = df_radii.loc[date_selected]
-print(user_radii)
-st.write(user_radii)
+#print(user_radii)
+#st.write(user_radii)
 #create dumb map - max distance walked. could improve with slider vs time to show progress.
 df_location = pd.DataFrame(
 	{'User': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
@@ -322,12 +322,7 @@ grouped = pd.DataFrame({'user_radius': user_radii})
 print(grouped)
 df_location = df_location.merge(grouped, on='User', how='left') # this doesn't work since no 'user_radius' column in df_location.
 df_location['distance_walked (km)'] = round(df_location.user_radius_y/1,0)
-#grouped = df_clean.groupby("User")['user_total_distance'].max()
-#print(grouped)
-#none of these below give the right max total distance by user. Need to fix this, then fix the scale so it does not scoll with the map.
-#df_location["user_radius"] = clean_data.groupby('User')["user_radius"].transform(lambda x: x.max()) # this only works when 'user_radius' is calculated as the max of user total distance in 10k_form_data
-#df_location['user_radius'] = clean_data.groupby('User')['user_total_distance'].transform('max')
-#df_location["user_radius3"] = clean_data.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
+
 print(df_location)
 print(rawest_data)
 
