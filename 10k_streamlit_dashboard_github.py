@@ -13,7 +13,7 @@ import numpy as np
 import time
 import streamlit as st
 
-#TODO must add secrets.toml entire text into streamlit secrets during deployment - done
+#TODO must add secrets.toml entire text into streamlit secrets during deployment
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 #below authenticates using json. Bad practice storing encrypted json on github, so followed tutorial https://blog.streamlit.io/streamlit-firestore-continued/. Replace:
 #creds = ServiceAccountCredentials.from_json_keyfile_name('10k_steps_1ccf14078f1f.json', scope) #Change to your downloaded JSON file name
@@ -28,7 +28,7 @@ client = gspread.authorize(creds)
 #can add more spreadsheets as in example - spreadsheets = ['dummy_10k_response','dummy_data_pcr_test']
 spreadsheets = ['Results']
 
-#@st.cache
+
 def main(spreadsheets):
 	df = pd.DataFrame()
 
@@ -80,9 +80,11 @@ def convert_column_names(x):
 print('scraping form data ... again')
 #second stage - read newly outputed file and run data cleaning steps
 df = main(spreadsheets)
-print (df)
+print(df)
 
 raw_data = df
+
+
 #raw_data.to_csv('10k_survey_google_output.csv', index=False)
 #TODO need to parse dates in dataframe before the next step. This used to be done by pd.read_csv("file_name.csv", parse_dates=[0]) but need to do this in existing df
 #!super important if not using df only method
@@ -99,9 +101,16 @@ df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
 												  #0)))
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
 df['date_time'] = df['date_time'] - df['GMT_delta']
-print(df)
+
+#TODO raw data is losing the timestamp here, but it is really for the clean data steps. Need to define raw_data as something that is no longer adjusted
+rawest_data = pd.DataFrame(raw_data)
+print(rawest_data)
 #convert from datetime to date
 df['date_time'] = df['date_time'].dt.date
+#TODO for some reason rawest data is being changed by df when it should have been its ownn
+
+print('is rawest data including time? it should be')
+print(rawest_data)
 #remove column
 df = df.drop(['GMT_delta'], axis=1)
 #remove date duplicates
@@ -148,10 +157,16 @@ clean_data = df
 print("Written response data for visualisation, check 'Response_data_for_visualisation.csv'")
 
 #Create dataframe for bar_char_race
-df_race = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_cum")#, aggfunc=[np.sum], fill_value=0)
+df_race = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_total_distance")#, aggfunc=[np.sum], fill_value=0)
 df_race = df_race.fillna(method='ffill')
 df_race = df_race.fillna(value=0)
 #df_race.to_csv('10k_race_data_wide.csv', index='date_time')
+
+df_radii = pd.pivot_table(df, index='date_time', columns= 'User', values= "user_cum")#, aggfunc=[np.sum], fill_value=0)
+df_radii = df_race.fillna(method='ffill')
+df_radii = df_race.fillna(value=0)
+
+
 print("Written 10k race response data in wide format for bar_chart_race visualisation, check '10k_race_data_wide.csv'")
 print(df_race)
 print(df_location)
@@ -182,7 +197,7 @@ def load_race_data(nrows):
 
 def load_raw_data(nrows):
 	data = raw_data
-	data['date_time'] = pd.to_datetime(data['date_time'])
+#	data['date_time'] = pd.to_datetime(data['date_time'])
 	return data
 
 #call the functions
@@ -226,17 +241,19 @@ print(num_days)
 # We now merge them
 #result = pd.concat([all_days_count, days_in_df], axis=1, sort=True)
 
-# Finnaly we can get the ration
+# Finnaly we can get the rationss
 #result['day'] / result['all_days']
 
 
 leaderboard = pd.DataFrame(clean_data['User'].value_counts())
 leaderboard['Rank'] = leaderboard['User'].rank(method='min', ascending=False)
 leaderboard['Total Entires'] = clean_data['User'].value_counts()
+leaderboard['Cum Entires'] = leaderboard['Total Entires'].sum()
+leaderboard['Dominance, %'] = round(100*leaderboard['Total Entires']/leaderboard['Cum Entires'],2)
 #leaderboard = leaderboard.sort_values(by=['User'], ascending=False)
 
 st.subheader("Leaderboard :trophy:")
-st.write(leaderboard[['Rank', 'Total Entires']])
+st.write(leaderboard[['Rank', 'Total Entires', 'Dominance, %']])
 
 st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
@@ -259,7 +276,7 @@ if st.checkbox("I didn't ask you to hold back, show me the dirty doubles too!"):
 st.subheader('Need to see the raw data too?')
 if st.checkbox("yeah, I said don't hold back"):
 	st.subheader('Alrighty then')
-	st.write(raw_data)
+	st.write(rawest_data[['date_time', 'User', 'Response']])
 
 #TODO dominance through time matrix by user
 
@@ -278,19 +295,21 @@ if st.checkbox("yeah, I said don't hold back"):
 #map
 # Use pandas to calculate additional data
 df_clean = pd.DataFrame(clean_data)
-#df_clean["user_radius"] = df_clean.groupby(by=['User'])["user_total_distance"].transform(lambda x: x.max())
+
 print(raw_data)
 print(clean_data)
 print(race)
 
 #TODO link slider to user radius
 #sldier for date selection on map
-# st.subheader("Date Range")
-# x = st.slider('Choose a date within the 10k challenge',
-#               min_value=datetime.date(2021,2,1), max_value=datetime.date(2021,11,1))
-# st.write("Date:", x)
+st.subheader("Date Range")
+date_selected = st.slider('Choose a date within the 10k challenge',
+			  min_value=datetime.date(2021,2,1), max_value= race.index.max())
+st.write("Date:", date_selected)
 
-
+user_radii = df_radii.loc[date_selected]
+#print(user_radii)
+#st.write(user_radii)
 #create dumb map - max distance walked. could improve with slider vs time to show progress.
 df_location = pd.DataFrame(
 	{'User': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
@@ -298,20 +317,14 @@ df_location = pd.DataFrame(
 	 'Latitude': [57.12664782485791, 29.788560, 57.053191365939014, 56.297822940458516, 55.96489428639169, 55.614565375840684, 57.059500, 52.01156076443694, 55.973031019654556, 55.97611497379852,-37.80644503373699],
 	 'Longitude': [-2.1194205303315305, -95.404690, -2.494927207289044, -3.700814331824761, -3.193001769495062, -4.497515324553008, -2.470750, 4.3537398921012835, -3.1942029310662634, -3.1693718812876726, 144.96365372001142],
 	 'user_radius': [1.0, 1.0, 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0]})
-grouped = pd.DataFrame(
-{#'User': ['Ali', 'Buskie', 'Darnell', 'Ewan', 'Keith', 'Matthew', 'Rusty', 'Sam H', 'Sam J', 'Stirling', 'Watson'],
- 'user_radius': df_clean.groupby("User")['user_total_distance'].max()})
+#grouped = pd.DataFrame({'user_radius': df_clean.groupby("User")['user_total_distance'].max()})
+grouped = pd.DataFrame({'user_radius': user_radii})
 print(grouped)
 df_location = df_location.merge(grouped, on='User', how='left') # this doesn't work since no 'user_radius' column in df_location.
 df_location['distance_walked (km)'] = round(df_location.user_radius_y/1,0)
-#grouped = df_clean.groupby("User")['user_total_distance'].max()
-#print(grouped)
-#none of these below give the right max total distance by user. Need to fix this, then fix the scale so it does not scoll with the map.
-#df_location["user_radius"] = clean_data.groupby('User')["user_radius"].transform(lambda x: x.max()) # this only works when 'user_radius' is calculated as the max of user total distance in 10k_form_data
-#df_location['user_radius'] = clean_data.groupby('User')['user_total_distance'].transform('max')
-#df_location["user_radius3"] = clean_data.groupby(by=['User'])['user_total_distance'].transform(lambda x: x.max()*1000)
-print(df_location)
 
+print(df_location)
+print(rawest_data)
 
 # Define a layer to display on a map
 # TODO colour user by rank, add slider to inspect by date. check non- github.py file for example slider.
@@ -359,15 +372,15 @@ st.pydeck_chart(pdk.Deck(
 
 
 
-print(race)
+
 #####RACE########
 
 st.subheader("This isn't a race, but if it was, it would probably be the best race in the world")
 
 
-with st.spinner(text='video loading, please remain calm'):
-	time.sleep(1)
-st.success('almost there... almost there... almost there...')
+#with st.spinner(text='video loading, please remain calm'):
+#	time.sleep(15)
+#st.success('almost there... almost there... almost there...')
 
 #TODO - commented out video creation since streamlit deployment on github does not have ffmpeg video codec.
 
@@ -408,3 +421,4 @@ st.video('./10k_race_video.mp4')
 #automation chron works, but is unix based and mac must be on. anachron can do it if mac is offline, but has been depreciated and replaced by launchd (https://medium.com/swlh/how-to-use-launchd-to-run-services-in-macos-b972ed1e352)
 #https://www.jcchouinard.com/python-automation-with-cron-on-mac/
 #0 0 * * * cd /Users/stephenbuskie/PycharmProjects/10k && /Users/stephenbuskie/opt/anaconda3/envs/streamlit/bin/python 10k_form_data.py
+
