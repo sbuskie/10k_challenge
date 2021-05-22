@@ -106,7 +106,7 @@ df['GMT_delta'] = np.where((df['date_time'] > start_BST) & (df['date_time'] <= e
 
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
 df['date_time'] = df['date_time'] - df['GMT_delta'] - df['HOU_delta']
-st.write(df)
+
 #TODO raw data is losing the timestamp here, but it is really for the clean data steps. Need to define raw_data as something that is no longer adjusted
 rawest_data = pd.DataFrame(raw_data)
 print(rawest_data)
