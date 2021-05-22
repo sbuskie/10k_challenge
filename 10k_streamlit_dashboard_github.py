@@ -95,10 +95,12 @@ df['date_time'] = pd.to_datetime(df['date_time'])
 print("Data loaded! starting data cleaning...")
 #TODO fix for BST so the boys get their witching hour steps
 #time zone correction
-df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
-							   #np.where(df['User'] == 'Watson', 12,
-										 #np.where(df['User'] == 'Sam H', 1,
-												  #0)))
+df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)
+#setup BST correction
+start_BST = '03/14/2021'
+end_BST = '11/07/2021'
+df['GMT_delta'] = np.where((df['date_time'] > start_BST) & (df['date_time'] <= end_BST), 1, 0)
+
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
 df['date_time'] = df['date_time'] - df['GMT_delta']
 
