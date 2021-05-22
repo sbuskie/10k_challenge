@@ -94,18 +94,15 @@ df['date_time'] = pd.to_datetime(df['date_time'])
 
 print("Data loaded! starting data cleaning...")
 #TODO fix for BST so the boys get their witching hour steps
-#time zone correction
+#Houston time zone correction
 df['HOU_delta'] = np.where(df['User'] == 'Buskie', 6, 0)
 df['HOU_delta'] = pd.to_datetime(df.HOU_delta, format='%H') - pd.to_datetime(df.HOU_delta, format='%H').dt.normalize()
 #setup BST correction
 start_BST = '03/14/2021'
 end_BST = '11/07/2021'
-
-
-df['GMT_delta'] = np.where((df['date_time'] > start_BST) & (df['date_time'] <= end_BST) & (df['User'] != 'Buskie'), 1, 0)
-
-df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
-df['date_time'] = df['date_time'] - df['GMT_delta'] - df['HOU_delta']
+df['BST_delta'] = np.where((df['date_time'] > start_BST) & (df['date_time'] <= end_BST) & (df['User'] != 'Buskie'), 1, 0)
+df['BST_delta'] = pd.to_datetime(df.BST_delta, format='%H') - pd.to_datetime(df.BST_delta, format='%H').dt.normalize()
+df['date_time'] = df['date_time'] - df['BST_delta'] - df['HOU_delta']
 st.write(df)
 #TODO raw data is losing the timestamp here, but it is really for the clean data steps. Need to define raw_data as something that is no longer adjusted
 rawest_data = pd.DataFrame(raw_data)
