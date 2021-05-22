@@ -94,7 +94,7 @@ df['date_time'] = pd.to_datetime(df['date_time'])
 
 print("Data loaded! starting data cleaning...")
 #TODO fix for BST so the boys get their witching hour steps
-#time zone correction
+#time zone corrections
 df['HOU_delta'] = np.where(df['User'] == 'Buskie', 6, 0)
 df['HOU_delta'] = pd.to_datetime(df.HOU_delta, format='%H') - pd.to_datetime(df.HOU_delta, format='%H').dt.normalize()
 #setup BST correction
