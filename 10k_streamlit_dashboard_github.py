@@ -241,7 +241,7 @@ st.write(leaderboard[['Rank', 'Total Entires', 'Dominance, %']])
 st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
 hist_values = np.histogram(
-	pop_days['day'].dt.day, bins=7, range=(0,24))
+	pop_days['day'], bins=7, range=(0,24))
 
 st.bar_chart(hist_values)
 
