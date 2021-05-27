@@ -28,7 +28,7 @@ client = gspread.authorize(creds)
 #can add more spreadsheets as in example - spreadsheets = ['dummy_10k_response','dummy_data_pcr_test']
 spreadsheets = ['Results']
 
-
+@st.cache
 def main(spreadsheets):
 	df = pd.DataFrame()
 
@@ -262,6 +262,10 @@ st.write(leaderboard[['Rank', 'Total Entires', 'Dominance, %']])
 
 st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
+st.alt.chart(pop_days).mark_bar().encode(
+	alt.X("Day popularity", bin=True),
+	y='count()'
+)
 
 st.subheader("Do y'all wanna see the data?")
 if st.checkbox('yeah, show me the data!'):
