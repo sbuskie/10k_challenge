@@ -240,10 +240,7 @@ st.write(leaderboard[['Rank', 'Total Entires', 'Dominance, %']])
 
 st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
-hist_values = np.histogram(
-	pop_days['day'], bins=7, range=(0,7))[0]
 
-st.bar_chart(hist_values)
 
 st.subheader("Do y'all wanna see the data?")
 if st.checkbox('yeah, show me the data!'):
