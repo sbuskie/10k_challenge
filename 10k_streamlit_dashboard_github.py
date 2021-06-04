@@ -262,7 +262,7 @@ if st.checkbox("yeah, I said don't hold back"):
 	st.subheader('Alrighty then')
 	st.write(rawest_data[['date_time', 'User', 'Response']])
 
-#TODO dominance through time matrix by user
+#TODO dominance through time matrix by users
 
 #Bar chart
 #st.bar_chart(raw_data['user_cum'])
