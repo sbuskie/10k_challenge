@@ -94,13 +94,18 @@ df['date_time'] = pd.to_datetime(df['date_time'])
 
 print("Data loaded! starting data cleaning...")
 #TODO fix for BST so the boys get their witching hour steps
-#time zone correction
-df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
-							   #np.where(df['User'] == 'Watson', 12,
-										 #np.where(df['User'] == 'Sam H', 1,
-												  #0)))
+#time zone corrections
+df['HOU_delta'] = np.where(df['User'] == 'Buskie', 6, 0)
+df['HOU_delta'] = pd.to_datetime(df.HOU_delta, format='%H') - pd.to_datetime(df.HOU_delta, format='%H').dt.normalize()
+#setup BST correction
+start_BST = '03/14/2021'
+end_BST = '11/07/2021'
+
+
+df['GMT_delta'] = np.where((df['date_time'] > start_BST) & (df['date_time'] <= end_BST) & (df['User'] != 'Buskie'), 1, 0)
+
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
-df['date_time'] = df['date_time'] - df['GMT_delta']
+df['date_time'] = df['date_time'] - df['GMT_delta'] - df['HOU_delta']
 
 #TODO raw data is losing the timestamp here, but it is really for the clean data steps. Need to define raw_data as something that is no longer adjusted
 rawest_data = pd.DataFrame(raw_data)
@@ -112,7 +117,7 @@ df['date_time'] = df['date_time'].dt.date
 print('is rawest data including time? it should be')
 print(rawest_data)
 #remove column
-df = df.drop(['GMT_delta'], axis=1)
+df = df.drop(['GMT_delta', 'HOU_delta'], axis=1)
 #remove date duplicates
 df = df.drop_duplicates(
 	subset = ["date_time", 'User'],
@@ -223,28 +228,6 @@ num_days = pop_days['day'].value_counts()
 print(num_days)
 
 
-
-
-#https://stackoverflow.com/questions/54694957/pandas-average-row-count-per-day-of-the-week
-# Create series for days in your dataframe
-#days_in_df = df['day'].value_counts()
-
-# Create a dataframe with all days
-#start = '01/01/2019'
-#end = '01/31/2019'
-#all_days_df = pd.DataFrame(data={'datetime': pd.date_range(start='01/01/2019', periods=31, freq='d')})
-#all_days_df['all_days'] = all_days_df['datetime'].dt.day_name()
-
-# Use that for value counts
-#all_days_count = all_days_df['all_days'].value_counts()
-
-# We now merge them
-#result = pd.concat([all_days_count, days_in_df], axis=1, sort=True)
-
-# Finnaly we can get the rationss
-#result['day'] / result['all_days']
-
-
 leaderboard = pd.DataFrame(clean_data['User'].value_counts())
 leaderboard['Rank'] = leaderboard['User'].rank(method='min', ascending=False)
 leaderboard['Total Entires'] = clean_data['User'].value_counts()
@@ -257,6 +240,7 @@ st.write(leaderboard[['Rank', 'Total Entires', 'Dominance, %']])
 
 st.subheader("The most popular day for walking is :runner:...")
 st.write(num_days)
+
 
 st.subheader("Do y'all wanna see the data?")
 if st.checkbox('yeah, show me the data!'):

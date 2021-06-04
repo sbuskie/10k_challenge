@@ -69,17 +69,22 @@ df = pd.read_csv("10k_survey_google_output.csv", parse_dates=[0])#,index_col=0)
 print("Data loaded! starting data cleaning...")
 
 #time zone correction
-df['GMT_delta'] = np.where(df['User'] == 'Buskie', 6, 0)#,
-                               #np.where(df['User'] == 'Watson', 12,
-                                         #np.where(df['User'] == 'Sam H', 1,
-                                                  #0)))
+df['HOU_delta'] = np.where(df['User'] == 'Buskie', 6, 0)
+df['HOU_delta'] = pd.to_datetime(df.HOU_delta, format='%H') - pd.to_datetime(df.HOU_delta, format='%H').dt.normalize()
+#setup BST correction
+start_BST = '03/14/2021'
+end_BST = '11/07/2021'
+
+
+df['GMT_delta'] = np.where((df['date_time'] > start_BST) & (df['date_time'] <= end_BST) & (df['User'] != 'Buskie'), 1, 0)
+
 df['GMT_delta'] = pd.to_datetime(df.GMT_delta, format='%H') - pd.to_datetime(df.GMT_delta, format='%H').dt.normalize()
-df['date_time'] = df['date_time'] - df['GMT_delta']
+df['date_time'] = df['date_time'] - df['GMT_delta'] - df['HOU_delta']
 
 #convert from datetime to date
 df['date_time'] = df['date_time'].dt.date
 #remove column
-df = df.drop(['GMT_delta'], axis=1)
+df = df.drop(['GMT_delta', 'HOU_delta'], axis=1)
 #remove date duplicates
 df = df.drop_duplicates(
     subset = ["date_time", 'User'],
