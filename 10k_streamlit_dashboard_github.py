@@ -117,7 +117,7 @@ df['date_time'] = df['date_time'].dt.date
 print('is rawest data including time? it should be')
 print(rawest_data)
 #remove column
-df = df.drop(['GMT_delta'], axis=1)
+df = df.drop(['GMT_delta', 'HOU_delta'], axis=1)
 #remove date duplicates
 df = df.drop_duplicates(
 	subset = ["date_time", 'User'],
@@ -262,7 +262,7 @@ if st.checkbox("yeah, I said don't hold back"):
 	st.subheader('Alrighty then')
 	st.write(rawest_data[['date_time', 'User', 'Response']])
 
-#TODO dominance through time matrix by users
+#TODO dominance through time matrix by user
 
 #Bar chart
 #st.bar_chart(raw_data['user_cum'])

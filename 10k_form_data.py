@@ -90,7 +90,7 @@ df['date_time'] = df['date_time'] - df['GMT_delta'] - df['HOU_delta']
 #convert from datetime to date
 df['date_time'] = df['date_time'].dt.date
 #remove column
-df = df.drop(['GMT_delta'], axis=1)
+df = df.drop(['GMT_delta', 'HOU_delta'], axis=1)
 #remove date duplicates
 df = df.drop_duplicates(
     subset = ["date_time", 'User'],
