@@ -28,7 +28,7 @@ client = gspread.authorize(creds)
 #can add more spreadsheets as in example - spreadsheets = ['dummy_10k_response','dummy_data_pcr_test']
 spreadsheets = ['Results']
 
-
+@st.cache(allow_output_mutation=True)
 def main(spreadsheets):
 	df = pd.DataFrame()
 
