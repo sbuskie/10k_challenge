@@ -206,7 +206,7 @@ st.pydeck_chart(pdk.Deck(
 # Set the viewport location
 #view_state = pdk.ViewState(latitude=57.051536150778986, longitude=-2.5052866770165534, zoom=10, bearing=0, pitch=0)
 
-# Render
+# Rendering
 #r = pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip={"text": "{User}\n{user_total_distance}"})
 #r.to_html("scatterplot_layer.html")
 
