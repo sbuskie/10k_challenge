@@ -257,6 +257,7 @@ bcr.bar_chart_race(
 #    filter_column_colors=False)
 
 st.video('./10k_race_video.mp4')
+#finished!
 #automation chron works, but is unix based and mac must be on. anachron can do it if mac is offline, but has been depreciated and replaced by launchd (https://medium.com/swlh/how-to-use-launchd-to-run-services-in-macos-b972ed1e352)
 #https://www.jcchouinard.com/python-automation-with-cron-on-mac/
 #0 0 * * * cd /Users/stephenbuskie/PycharmProjects/10k && /Users/stephenbuskie/opt/anaconda3/envs/streamlit/bin/python 10k_form_data.py
